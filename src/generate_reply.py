@@ -51,9 +51,10 @@ def generate_reply(message):
         intent = "subscription_or_payment"
         
     # 2. Acknowledgements
-    ack_keywords = ["thanks", "thank you", "thx", "sent", "just sent", "okay", "ok", "got it", "solved", "worked", "it works"]
+    ack_keywords = ["thanks", "thank you", "thx", "appreciate", "much appreciated", "sent", "just sent", "okay", "ok", "got it", "solved", "worked", "it works"]
     is_ack = False
-    if clean_lower in ack_keywords or clean_lower.strip('!.') in ack_keywords:
+    clean_stripped = clean_lower.strip('!. ')
+    if len(clean_stripped.split()) <= 6 and any(kw in clean_stripped for kw in ack_keywords):
         intent = "other_or_unclear"
         is_ack = True
 
