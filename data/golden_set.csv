@@ -1,7 +1,7 @@
 tweet_id,message,intent,escalate,label_notes
-2382585,"Done and done! :). Thanks for hitting me back, you guys are on the ball with your social media game!",feature_or_product_question,no,
+2382585,"Done and done! :). Thanks for hitting me back, you guys are on the ball with your social media game!",other_or_unclear,no,
 874981,"Well they keep themselves updated, but yes forced a check, its up to date.",app_or_technical_issue,no,
-2312965,Please answer my DM!!,feature_or_product_question,no,
+2312965,Please answer my DM!!,other_or_unclear,no,
 1698986,Is this a problem with refusing to upgrade their firmware to support a new API or something like that?,other_or_unclear,no,
 470967,"Thanks, had already tried that to no avail.",other_or_unclear,no,
 353162,Problem fixed already. Thank you 😊,other_or_unclear,no,

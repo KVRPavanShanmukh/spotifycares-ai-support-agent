@@ -4,7 +4,7 @@ tweet_id,relevance,grounding,actionability,safety,tone,human_review_needed
 2312965,1,1,1,1,1,True
 1698986,1,1,0,1,1,True
 470967,1,1,0,1,1,True
-353162,1,1,0,1,1,True
+353162,1,1,1,1,1,True
 2251340,1,1,1,1,1,True
 450881,1,1,0,1,1,True
 689553,1,1,1,1,1,True
@@ -27,11 +27,11 @@ tweet_id,relevance,grounding,actionability,safety,tone,human_review_needed
 91680,1,1,1,1,1,True
 2203792,1,1,0,1,1,True
 2427700,1,1,0,1,1,True
-2294344,1,1,0,1,1,True
+2294344,1,1,1,1,1,True
 1764683,1,1,1,1,1,True
 1435271,1,1,1,1,1,True
 2704317,1,1,1,1,1,True
-2125252,1,1,0,1,1,True
+2125252,1,1,1,1,1,True
 1517196,1,1,1,1,1,True
 2677962,1,1,1,1,1,True
 129249,1,1,0,1,1,True
@@ -58,7 +58,7 @@ tweet_id,relevance,grounding,actionability,safety,tone,human_review_needed
 1577528,1,1,0,1,1,True
 1087023,1,1,0,1,1,True
 1526256,1,1,1,1,1,True
-2118668,1,1,0,1,1,True
+2118668,1,1,1,1,1,True
 79452,1,1,0,1,1,True
 272515,1,1,0,1,1,True
 677092,1,1,0,1,1,True
@@ -144,7 +144,7 @@ tweet_id,relevance,grounding,actionability,safety,tone,human_review_needed
 1289174,1,1,1,1,1,True
 2293844,1,1,1,1,1,True
 181682,1,1,1,1,1,True
-2913910,1,1,0,1,1,True
+2913910,1,1,1,1,1,True
 211087,1,1,1,1,1,True
 272242,1,1,0,1,1,True
 1154180,1,1,1,1,1,True
@@ -174,7 +174,7 @@ tweet_id,relevance,grounding,actionability,safety,tone,human_review_needed
 67695,1,1,0,1,1,True
 1855587,1,1,1,1,1,True
 2239727,1,1,1,1,1,True
-2728385,1,1,0,1,1,True
+2728385,1,1,1,1,1,True
 609556,1,1,0,1,1,True
 508861,1,1,1,1,1,True
 1190764,1,1,0,1,1,True

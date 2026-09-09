@@ -1,7 +1,7 @@
 tweet_id,true_intent,pred_intent
-2382585,feature_or_product_question,feature_or_product_question
+2382585,other_or_unclear,feature_or_product_question
 874981,app_or_technical_issue,app_or_technical_issue
-2312965,feature_or_product_question,feature_or_product_question
+2312965,other_or_unclear,feature_or_product_question
 1698986,other_or_unclear,other_or_unclear
 470967,other_or_unclear,other_or_unclear
 353162,other_or_unclear,other_or_unclear
@@ -33,7 +33,7 @@ tweet_id,true_intent,pred_intent
 2704317,playback_issue,playback_issue
 2125252,other_or_unclear,other_or_unclear
 1517196,feature_or_product_question,feature_or_product_question
-2677962,app_or_technical_issue,app_or_technical_issue
+2677962,app_or_technical_issue,other_or_unclear
 129249,other_or_unclear,other_or_unclear
 2608713,other_or_unclear,other_or_unclear
 2368045,other_or_unclear,other_or_unclear
@@ -161,7 +161,7 @@ tweet_id,true_intent,pred_intent
 844351,other_or_unclear,other_or_unclear
 1826396,app_or_technical_issue,app_or_technical_issue
 95805,other_or_unclear,other_or_unclear
-1523739,app_or_technical_issue,app_or_technical_issue
+1523739,app_or_technical_issue,other_or_unclear
 1230173,app_or_technical_issue,app_or_technical_issue
 1636799,other_or_unclear,other_or_unclear
 2705886,app_or_technical_issue,subscription_or_payment
