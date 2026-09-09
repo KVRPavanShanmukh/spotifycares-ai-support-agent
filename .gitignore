@@ -1,0 +1,8 @@
+__pycache__/
+*.zip
+*.csv
+!golden_set.csv
+!evaluation_*.csv
+!human_review_sample.csv
+*.joblib
+.env
