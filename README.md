@@ -178,18 +178,17 @@ To prioritize measurable proof and robust evaluation over feature bloat, the fol
 
 ## 13. Reproduction
 
+A fresh clone of this repository contains the prepared subset (`data/spotify.csv`) to easily reproduce the headline classifier result without downloading the full 2.8M-row raw dataset.
+
 ```bash
 pip install -r requirements.txt
-
-python src/inspect_data.py
-python src/extract_brand.py
 python src/train_classifier.py
-python src/build_retriever.py
-python src/generate_reply.py
-python src/evaluate_agent.py
 ```
 
-*(Note: the headline experiments use the prepared SpotifyCares data and can be reproduced without processing the entire 2.8M tweet dataset again.)*
+- **Expected headline result:** 67.0% Accuracy / 0.484 Macro F1 from 5-fold Stratified Cross-Validation.
+- *Note:* This is the defensible evaluation. The subsequent 96% accuracy output is contaminated (final model evaluated on its own training set) and is NOT the headline result.
+
+The full raw Kaggle dataset is only needed if you wish to recreate `spotify.csv` from scratch (`inspect_data.py` and `extract_brand.py`). Do not attempt to run the downstream full agent evaluation (`generate_reply.py` or `evaluate_agent.py`) until you have actually generated the required models/retriever files.
 
 ## 14. Repository Structure
 
