@@ -71,7 +71,7 @@ The pipeline was evaluated against two simple baselines using the 200 golden exa
 62.45% (±4.24%) accuracy
 
 **Clean HEADLINE RESULT: TF-IDF + Logistic Regression (5-fold CV):**
-67.46% (±5.44%) accuracy / 0.5301 (±0.0586) Macro F1
+67.46% (±5.44%) accuracy / 0.5301 (±0.0586) Macro F1, covering 197/200 golden examples and 6 intents because feature_or_product_question had only 3 examples.
 
 *(The previously reported 94% accuracy and 99.5% retrieval similarity results from the final harness are NOT used as headline results because the same golden examples were used to train the final classifier and populate the retrieval index, causing massive data leakage. The new retrieval evaluation explicitly excludes the tested customer tweet from the index to prevent exact self-retrieval.)*
 
@@ -80,9 +80,9 @@ The pipeline was evaluated against two simple baselines using the 200 golden exa
 It is crucial to acknowledge the limitations in the evaluation harness results:
 
 - **Original Contamination:** The previous 94% was not a held-out test score. The golden examples were reused in training the final classifier. We have now fixed this using 5-fold CV.
-- **Self-Retrieval Fixed:** The previous 99.5% retrieval similarity was completely invalid due to exact self-retrieval. The new leakage-safe retrieval evaluation yields a much more realistic **Mean top-1 similarity of 0.5060**.
+- **Self-Retrieval Fixed:** The previous 99.5% retrieval similarity was completely invalid due to exact self-retrieval. The new leakage-safe retrieval evaluation yields a much more realistic **Mean top-1 similarity of 0.5060** (note that TF-IDF cosine similarity is a lexical metric and not a true semantic relevance metric).
 - **Data Imbalance:** The golden set is small and heavily imbalanced.
-- **Metric Limitations:** The deterministic reply quality rubric is a rigid proxy and is not equivalent to human or LLM-judge judgements. An LLM judge rubric is implemented but pending an API key to execute.
+- **Metric Limitations:** The deterministic reply quality rubric is a rigid proxy and is not equivalent to human or LLM-judge judgements.
 
 **The defensible classifier headline result is the clean 5-fold CV result of 67.46% accuracy / 0.5301 Macro F1.**
 
@@ -108,6 +108,12 @@ Using an internal deterministic rubric:
 *(This is an internal deterministic rubric, NOT a human or LLM-judge score.)*
 
 Actionability was the weakest dimension, as the fallback generation often produces safe but generic replies instead of providing concrete next steps.
+
+### LLM Judge & Human Agreement
+
+LLM judge results say 18/20 were successfully judged because of the Gemini free-tier quota. LLM judge results are reported as diagnostic, not as validated human-equivalent evaluation.
+Human agreement is reported honestly:
+N=20, mean human 3.65, mean LLM 4.01, MAE 1.42, exact agreement 15%, Pearson 0.009, Spearman -0.032.
 
 ## 9. Top 5 Failure Modes
 
