@@ -1,0 +1,20 @@
+{
+    "LogisticRegression_TFIDF": {
+        "mean_accuracy": 0.6746153846153846,
+        "std_accuracy": 0.054363509728553895,
+        "mean_macro_f1": 0.5300731103746045,
+        "std_macro_f1": 0.05864339969535167
+    },
+    "Keyword_Baseline": {
+        "mean_accuracy": 0.6244871794871796,
+        "std_accuracy": 0.04240160516976974,
+        "mean_macro_f1": 0.47224377572453646,
+        "std_macro_f1": 0.04199902239680717
+    },
+    "Majority_Baseline": {
+        "mean_accuracy": 0.461923076923077,
+        "std_accuracy": 0.007919715493066911,
+        "mean_macro_f1": 0.10531647646292822,
+        "std_macro_f1": 0.0012338654783615524
+    }
+}

@@ -38,7 +38,7 @@ def format_reply(text):
     # Clean standard elements
     return clean(text)
 
-def generate_reply(message):
+def generate_reply(message, exclude_tweet_id=None):
     clean_msg = clean(message)
     clean_lower = clean_msg.lower()
     
@@ -58,18 +58,24 @@ def generate_reply(message):
         intent = "other_or_unclear"
         is_ack = True
 
-    # 2. Retrieve top 3
+    # 2. Retrieve top 10 to allow filtering
     query_vec = retriever_data["vectorizer"].transform([clean_msg])
     sim_scores = cosine_similarity(query_vec, retriever_data["tfidf_matrix"]).flatten()
-    top_indices = sim_scores.argsort()[-3:][::-1]
+    top_indices = sim_scores.argsort()[-10:][::-1]
     
     evidence = []
     for idx in top_indices:
+        cust_id = str(retriever_data["pairs_df"].iloc[idx].get("customer_tweet_id", ""))
+        if exclude_tweet_id and cust_id == str(exclude_tweet_id):
+            continue
+        
         evidence.append({
             "similarity": sim_scores[idx],
             "customer_message": retriever_data["pairs_df"].iloc[idx]["customer_text"],
             "support_response": retriever_data["pairs_df"].iloc[idx]["support_text"]
         })
+        if len(evidence) == 3:
+            break
         
     top_sim = evidence[0]["similarity"] if evidence else 0.0
     

@@ -62,7 +62,7 @@ retrieved_supports = []
 agent_replies = []
 
 for idx, row in golden.iterrows():
-    res = generate_reply(row["message"])
+    res = generate_reply(row["message"], exclude_tweet_id=row["tweet_id"])
     agent_intents.append(res["intent"])
     agent_escalates.append(res["escalate"].lower())
     agent_replies.append(res["reply"])

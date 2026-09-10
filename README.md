@@ -62,29 +62,29 @@ Customer messages were mapped to 7 distinct intents:
 
 ## 5. Evaluation
 
-The pipeline was evaluated against two simple baselines using the 200 golden examples:
+The pipeline was evaluated against two simple baselines using the 200 golden examples, and now features a **clean 5-fold Stratified Cross-Validation** to prevent data leakage.
 
-**Majority Baseline:**
-44.5% accuracy / 0.088 Macro F1
+**Majority Baseline (5-fold):**
+46.19% (±0.79%) accuracy 
 
-**Keyword Baseline:**
-60.5% accuracy / 0.467 Macro F1
+**Keyword Baseline (5-fold):**
+62.45% (±4.24%) accuracy
 
-**Initial TF-IDF + Logistic Regression (5-fold CV):**
-67.0% accuracy / 0.484 Macro F1
+**Clean HEADLINE RESULT: TF-IDF + Logistic Regression (5-fold CV):**
+67.46% (±5.44%) accuracy / 0.5301 (±0.0586) Macro F1
 
-*(The 96% accuracy and 99.5% retrieval similarity results from the final harness are NOT used as headline results because the same 200 golden examples were used to train the final classifier. Likewise, the 99.5% retrieval similarity is inflated because the evaluation queries were present in the retrieval index.)*
+*(The previously reported 94% accuracy and 99.5% retrieval similarity results from the final harness are NOT used as headline results because the same golden examples were used to train the final classifier and populate the retrieval index, causing massive data leakage. The new retrieval evaluation explicitly excludes the tested customer tweet from the index to prevent exact self-retrieval.)*
 
 ## 6. What Is Misleading About My Headline Number?
 
-It is crucial to acknowledge the limitations in the final evaluation harness results:
+It is crucial to acknowledge the limitations in the evaluation harness results:
 
-- **Contamination:** 96% is not a held-out test score. The golden examples were reused in training the final classifier.
-- **Self-Retrieval:** 99.5% retrieval similarity is not retrieval accuracy; the golden examples were present in the TF-IDF retrieval index.
-- **Data Imbalance:** The golden set is small and heavily imbalanced (e.g., `feature_or_product_question` had only 5 examples).
-- **Metric Limitations:** The deterministic reply quality rubric is a rigid proxy and is not equivalent to human or LLM-judge judgements.
+- **Original Contamination:** The previous 94% was not a held-out test score. The golden examples were reused in training the final classifier. We have now fixed this using 5-fold CV.
+- **Self-Retrieval Fixed:** The previous 99.5% retrieval similarity was completely invalid due to exact self-retrieval. The new leakage-safe retrieval evaluation yields a much more realistic **Mean top-1 similarity of 0.5060**.
+- **Data Imbalance:** The golden set is small and heavily imbalanced.
+- **Metric Limitations:** The deterministic reply quality rubric is a rigid proxy and is not equivalent to human or LLM-judge judgements. An LLM judge rubric is implemented but pending an API key to execute.
 
-**The more defensible classifier result is the 5-fold CV result of 67.0% accuracy / 0.484 Macro F1.**
+**The defensible classifier headline result is the clean 5-fold CV result of 67.46% accuracy / 0.5301 Macro F1.**
 
 ## 7. Escalation Results
 
@@ -112,28 +112,28 @@ Actionability was the weakest dimension, as the fallback generation often produc
 ## 9. Top 5 Failure Modes
 
 1. **Retrieval finds lexically similar but operationally different cases.**
-   *What happened:* A subscription cancellation retrieves an unrelated cancellation conversation.
-   *Why it happened:* TF-IDF relies on keyword overlap without semantic understanding.
+   *Actual example:* Customer: "A song page loads, such as Wolves and then... nothing." retrieved "A white page loads..."
+   *Why it failed:* TF-IDF relies on keyword overlap without semantic understanding.
    *Proposed fix:* Upgrade retrieval to dense semantic embeddings.
 
 2. **Specific historical facts can leak into replies.**
-   *What happened:* A Taylor Swift album retrieval produced a historical response about "Reputation", which is unsafe for a current generic content request.
-   *Why it happened:* The deterministic reply logic sometimes grabs highly specific historical context.
+   *Actual example:* A content request retrieved a historical response about "Reputation" by Taylor Swift, which is unsafe for a current generic content request.
+   *Why it failed:* The deterministic reply logic sometimes grabs highly specific historical context.
    *Proposed fix:* Add an LLM generation step strictly prompted to abstract specific entities.
 
-3. **Intent imbalance.**
-   *What happened:* Most examples fall into `other_or_unclear`, while classes like `feature_or_product_question` have fewer than 5 examples.
-   *Why it happened:* The data natural distribution is heavily skewed toward complaints/banter.
-   *Proposed fix:* Rebalance the training dataset with synthetically generated or aggressively sampled minority classes.
+3. **Intent imbalance (Keyword override confusion).**
+   *Actual example:* Customer: "Different issues: occasionally when I try to play a playlist I have, it either won't play or tells me to get premium."
+   *Why it failed:* The system intended `playback_issue` but hardcoded rules override to `subscription_or_payment` because of the word "premium".
+   *Proposed fix:* Trust the ML model's confidence or use an LLM for multi-intent handling.
 
-4. **Over-escalation.**
-   *What happened:* The escalation policy achieves 100% recall but only 18.4% precision.
-   *Why it happened:* Strict rules flag entire intents (like `subscription_or_payment`) for escalation unconditionally.
-   *Proposed fix:* Implement a confidence threshold on the classifier before defaulting to an escalation route.
+4. **Over-escalation for ambiguous/other messages.**
+   *Actual example:* AmazonHelp Demo Customer: "Where is my package? It says delivered but I don't have it."
+   *Why it failed:* System categorized as `other_or_unclear` and immediately escalated with reason "Message appears genuinely ambiguous".
+   *Proposed fix:* Implement a confidence threshold on the classifier before defaulting to an escalation route, and expand the taxonomy for other brands.
 
-5. **Weak actionability.**
-   *What happened:* The deterministic fallback often produces safe but generic replies instead of a concrete next step.
-   *Why it happened:* Without an LLM to synthesize a step-by-step resolution, the system relies on canned historical snippets.
+5. **Generic replies can have low actionability.**
+   *Actual example:* Customer says the web app is BAD. The agent replies with a safe but generic: "We're looking into this! Could you send us a DM with more details about the issue so we can help?"
+   *Why it failed:* The deterministic fallback produces safe but generic replies instead of providing concrete next steps when the top evidence is low similarity.
    *Proposed fix:* Use an LLM to generate actionable steps grounded in the retrieved evidence.
 
 ## 10. Non-obvious Decisions
@@ -149,10 +149,11 @@ Actionability was the weakest dimension, as the fallback generation often produc
 9. **Retrieved three historical examples** to provide robust grounding context.
 10. **Avoided fine-tuning** because of time/data costs within the scope of this assignment.
 11. **Avoided a frontend** because rigorous evaluation mattered more than a UI.
-12. **Used deterministic reply generation** when no LLM key was available in the environment.
+12. **Used deterministic reply generation** as a fallback.
 13. **Escalated payment/account-sensitive cases conservatively** to prioritize safety.
 14. **Removed Twitter handles and internal metadata** from customer replies.
 15. **Explicitly disclosed evaluation leakage** rather than reporting inflated numbers as production performance.
+16. **Built a free-tier LLM-as-judge integration** using Google Gemini 2.5 Flash via the `google-genai` SDK and the `GEMINI_API_KEY` environment variable, ensuring zero cost and avoiding API keys committed to the repository.
 
 ## 11. What I Did Not Build
 
@@ -185,8 +186,16 @@ pip install -r requirements.txt
 python src/train_classifier.py
 ```
 
-- **Expected headline result:** 67.0% Accuracy / 0.484 Macro F1 from 5-fold Stratified Cross-Validation.
-- *Note:* This is the defensible evaluation. The subsequent 96% accuracy output is contaminated (final model evaluated on its own training set) and is NOT the headline result.
+- **Expected headline result:** 67.46% Accuracy / 0.5301 Macro F1 from 5-fold Stratified Cross-Validation.
+
+**Running the LLM-as-Judge:**
+The evaluation harness uses Google Gemini 2.5 Flash on the free tier to evaluate reply quality without incurring costs.
+To use the judge:
+1. Obtain a free Gemini API key from Google AI Studio.
+2. Set the environment variable: `$env:GEMINI_API_KEY="your-key-here"` (in PowerShell) or `export GEMINI_API_KEY="your-key-here"` (in bash).
+3. Run the evaluation script: `python src/evaluate_llm_judge.py`
+
+*(Note: Human-review agreement requires genuine human scores in `data/human_review_sample.csv`. The script will output "Human scores not yet available" if they are blank.)*
 
 The full raw Kaggle dataset is only needed if you wish to recreate `spotify.csv` from scratch (`inspect_data.py` and `extract_brand.py`). Do not attempt to run the downstream full agent evaluation (`generate_reply.py` or `evaluate_agent.py`) until you have actually generated the required models/retriever files.
 

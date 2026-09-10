@@ -2,3 +2,6 @@ pandas
 numpy
 scikit-learn
 joblib
+google-genai
+pydantic
+
