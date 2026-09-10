@@ -1,0 +1,4 @@
+model,accuracy,macro_f1
+majority_baseline,0.455,0.08934707903780069
+keyword_baseline,0.615,0.46876586414919974
+tfidf_logistic_regression_cv,,

@@ -1,10 +1,47 @@
+# Python
 __pycache__/
-*.zip
-*.csv
-!golden_set.csv
-!evaluation_*.csv
-!human_review_sample.csv
-!data/spotify.csv
-!data/llm_judge_results.csv
-*.joblib
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# Environment variables / secrets
 .env
+.env.*
+!.env.example
+
+# IDE / editor
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large/raw dataset files
+data/twcs/
+data/archive.zip
+data/twcs.csv
+
+# Generated model files
+*.joblib
+
+# CSV policy: ignore generated CSVs by default
+*.csv
+
+# Keep assignment/evaluation artifacts
+!data/golden_set.csv
+!data/human_review_sample.csv
+!data/llm_judge_results.csv
+!data/spotify.csv
+!data/classifier_results.csv
+
+# Keep evaluation outputs
+!evaluation_*.csv
+reports/
