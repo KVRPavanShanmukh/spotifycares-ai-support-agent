@@ -44,8 +44,26 @@ def evaluate_llm_judge():
         
     df = pd.read_csv(sample_file).head(20)
     
+    existing_results = {}
+    out_file = Path("data/llm_judge_results.csv")
+    if out_file.exists():
+        try:
+            existing_df = pd.read_csv(out_file)
+            for _, r in existing_df.iterrows():
+                if r.get("judge_status") == "Success":
+                    existing_results[r["tweet_id"]] = r.to_dict()
+        except Exception:
+            pass
+
     results = []
+    last_request_time = 0
     for idx, row in df.iterrows():
+        tweet_id = row['tweet_id']
+        if tweet_id in existing_results:
+            print(f"Skipping already successful evaluation for Tweet ID: {tweet_id}")
+            results.append(existing_results[tweet_id])
+            continue
+
         # Re-run generation to get the escalation info not saved in the sample CSV
         reply_res = generate_reply(row['message'], exclude_tweet_id=row['tweet_id'])
         escalation_decision = reply_res.get('escalate', 'Unknown')
@@ -75,25 +93,46 @@ Score the reply from 1 to 5 on these dimensions:
 5. Tone: Is it empathetic and on-brand?
 """
         
-        judge_status = "Success"
-        try:
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=JudgeResult,
-                ),
-            )
-            parsed = json.loads(response.text)
-            print(f"Evaluated {idx+1}/{len(df)} (Tweet ID: {row['tweet_id']})")
+        judge_status = "Error"
+        parsed = {}
+        max_retries = 3
+        
+        for attempt in range(max_retries):
+            now = time.time()
+            time_since_last = now - last_request_time
+            if time_since_last < 16:
+                sleep_time = 16 - time_since_last
+                print(f"Waiting {sleep_time:.1f}s to respect rate limit...")
+                time.sleep(sleep_time)
             
-            # Simple rate limiting for free tier
-            time.sleep(2)
-        except Exception as e:
-            print(f"Error evaluating row {idx}: {e}")
-            judge_status = "Error"
-            parsed = {}
+            last_request_time = time.time()
+            try:
+                response = client.models.generate_content(
+                    model='gemini-3.6-flash',
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema=JudgeResult,
+                    ),
+                )
+                parsed = json.loads(response.text)
+                print(f"Evaluated {idx+1}/{len(df)} (Tweet ID: {row['tweet_id']})")
+                judge_status = "Success"
+                break
+            except Exception as e:
+                err_str = str(e).lower()
+                print(f"Error evaluating row {idx} (Attempt {attempt+1}/{max_retries}): {e}")
+                
+                if attempt < max_retries - 1:
+                    if "429" in err_str:
+                        print("Rate limited (429 RESOURCE_EXHAUSTED). Waiting 25s...")
+                        time.sleep(25)
+                    elif "503" in err_str or "disconnect" in err_str or "unavailable" in err_str:
+                        print("Server error/disconnect. Waiting 15s...")
+                        time.sleep(15)
+                    else:
+                        print("Unknown error. Waiting 10s...")
+                        time.sleep(10)
             
         relevance = parsed.get("relevance", 0)
         grounding = parsed.get("grounding", 0)
@@ -116,7 +155,7 @@ Score the reply from 1 to 5 on these dimensions:
             "safety": safety,
             "tone": tone,
             "overall_score": overall_score,
-            "judge_model": "gemini-2.5-flash",
+            "judge_model": "gemini-3.6-flash",
             "judge_status": judge_status
         })
         
@@ -127,8 +166,13 @@ Score the reply from 1 to 5 on these dimensions:
     
     # Summary
     valid = out_df[out_df["judge_status"] == "Success"]
+    failed = out_df[out_df["judge_status"] == "Error"]
+    
+    print("\n--- LLM Judge Summary ---")
+    print(f"Successfully judged: {len(valid)}")
+    print(f"Failed: {len(failed)}")
+    
     if len(valid) > 0:
-        print("\n--- LLM Judge Summary ---")
         print(f"Relevance: {pd.to_numeric(valid['relevance'], errors='coerce').mean():.2f}")
         print(f"Grounding: {pd.to_numeric(valid['grounding'], errors='coerce').mean():.2f}")
         print(f"Actionability: {pd.to_numeric(valid['actionability'], errors='coerce').mean():.2f}")

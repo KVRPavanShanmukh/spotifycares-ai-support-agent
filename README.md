@@ -153,7 +153,7 @@ Actionability was the weakest dimension, as the fallback generation often produc
 13. **Escalated payment/account-sensitive cases conservatively** to prioritize safety.
 14. **Removed Twitter handles and internal metadata** from customer replies.
 15. **Explicitly disclosed evaluation leakage** rather than reporting inflated numbers as production performance.
-16. **Built a free-tier LLM-as-judge integration** using Google Gemini 2.5 Flash via the `google-genai` SDK and the `GEMINI_API_KEY` environment variable, ensuring zero cost and avoiding API keys committed to the repository.
+16. **Built a free-tier LLM-as-judge integration** using Google Gemini 3.6 Flash via the `google-genai` SDK and the `GEMINI_API_KEY` environment variable, ensuring zero cost and avoiding API keys committed to the repository.
 
 ## 11. What I Did Not Build
 
@@ -189,7 +189,7 @@ python src/train_classifier.py
 - **Expected headline result:** 67.46% Accuracy / 0.5301 Macro F1 from 5-fold Stratified Cross-Validation.
 
 **Running the LLM-as-Judge:**
-The evaluation harness uses Google Gemini 2.5 Flash on the free tier to evaluate reply quality without incurring costs.
+The evaluation harness uses Google Gemini 3.6 Flash on the free tier, with built-in rate-limit-aware retries (respecting the 5 RPM limit), to evaluate reply quality without incurring costs.
 To use the judge:
 1. Obtain a free Gemini API key from Google AI Studio.
 2. Set the environment variable: `$env:GEMINI_API_KEY="your-key-here"` (in PowerShell) or `export GEMINI_API_KEY="your-key-here"` (in bash).
