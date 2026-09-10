@@ -8,7 +8,6 @@ __pycache__/
 venv/
 .venv/
 env/
-.env/
 ENV/
 
 # Environment variables / secrets
@@ -32,16 +31,15 @@ data/twcs.csv
 # Generated model files
 *.joblib
 
-# CSV policy: ignore generated CSVs by default
+# CSVs: ignore by default, keep assignment artifacts
 *.csv
-
-# Keep assignment/evaluation artifacts
 !data/golden_set.csv
 !data/human_review_sample.csv
 !data/llm_judge_results.csv
 !data/spotify.csv
 !data/classifier_results.csv
-
-# Keep evaluation outputs
 !evaluation_*.csv
-reports/
+
+# Keep evaluation reports
+!reports/
+!reports/**
